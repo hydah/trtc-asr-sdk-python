@@ -8,7 +8,7 @@ setup(
     packages=find_packages(include=["trtc_asr*"]),
     install_requires=[
         "websockets>=11.0",
-        "tls-sig-api-v2>=1.2",
+        "tls-sig-api-v2>=1.1",
     ],
     extras_require={
         "dev": [

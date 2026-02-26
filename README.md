@@ -1,6 +1,8 @@
 # TRTC-ASR Python SDK
 
-基于 TRTC 鉴权体系的实时语音识别（ASR）Python SDK，通过 WebSocket 协议与 ASR 服务通信。
+基于 TRTC 鉴权体系的语音识别（ASR）Python SDK，支持实时语音识别（WebSocket）和一句话识别（HTTP）两种模式。
+
+> 其他语言 SDK：[Go](https://github.com/hydah/trtc-asr-sdk-go) | [Node.js](https://github.com/hydah/trtc-asr-sdk-nodejs)
 
 ## 安装
 
@@ -80,6 +82,34 @@ async def main():
 asyncio.run(main())
 ```
 
+### 一句话识别
+
+```python
+from trtc_asr import Credential
+from trtc_asr.sentence_recognizer import SentenceRecognizer
+
+# 1. 创建凭证
+credential = Credential(
+    app_id=0,                      # 腾讯云 APPID
+    sdk_app_id=0,                  # TRTC SDKAppID
+    secret_key="your-sdk-secret-key",  # SDK密钥
+)
+
+# 2. 创建一句话识别器
+recognizer = SentenceRecognizer(credential)
+
+# 3. 从本地文件识别（自动 base64 编码）
+with open("audio.pcm", "rb") as f:
+    data = f.read()
+result = recognizer.recognize_data(data, "pcm", "16k_zh_en")
+
+print(f"识别结果: {result.result}")
+print(f"音频时长: {result.audio_duration} ms")
+
+# 或者从 URL 识别
+# result = recognizer.recognize_url("https://example.com/audio.wav", "wav", "16k_zh_en")
+```
+
 ## 前提条件
 
 使用本 SDK 前，您需要：
@@ -123,7 +153,10 @@ asyncio.run(main())
 
 ## 示例
 
-完整示例请参见 [`examples/realtime_asr.py`](./examples/realtime_asr.py)。
+完整示例请参见：
+
+- **实时语音识别**：[`examples/realtime_asr.py`](./examples/realtime_asr.py) — WebSocket 流式识别
+- **一句话识别**：[`examples/sentence_asr.py`](./examples/sentence_asr.py) — HTTP 短音频识别
 
 运行示例：
 
@@ -132,10 +165,15 @@ git clone https://github.com/hydah/trtc-asr-sdk-python.git
 cd trtc-asr-sdk-python
 pip install -r requirements.txt
 
-python examples/realtime_asr.py -f test.pcm
+# 实时语音识别
+python examples/realtime_asr.py -f examples/test.pcm
+
+# 一句话识别
+python examples/sentence_asr.py -f examples/test.pcm
 
 # 查看所有选项
 python examples/realtime_asr.py -h
+python examples/sentence_asr.py -h
 ```
 
 ## 项目结构
@@ -147,13 +185,17 @@ trtc-asr-sdk-python/
 │   ├── credential.py               # 凭证管理（APPID + SDKAppID + SDK密钥）
 │   ├── usersig.py                  # TRTC UserSig 生成
 │   ├── signature.py                # URL 请求参数构建
-│   ├── speech_recognizer.py        # 实时语音识别器
+│   ├── speech_recognizer.py        # 实时语音识别器（WebSocket）
+│   ├── sentence_recognizer.py      # 一句话识别器（HTTP）
 │   └── errors.py                   # 错误定义
 ├── examples/                       # 示例代码
-│   └── realtime_asr.py             # 实时语音识别示例
+│   ├── test.pcm                    # 测试音频文件
+│   ├── realtime_asr.py             # 实时语音识别示例
+│   └── sentence_asr.py             # 一句话识别示例
 ├── tests/                          # 测试
 │   ├── test_signature.py           # 签名参数测试
-│   └── test_recognizer_lifecycle.py # 生命周期健壮性测试
+│   ├── test_recognizer_lifecycle.py # 生命周期健壮性测试
+│   └── test_sentence_recognizer.py # 一句话识别测试
 ├── pyproject.toml                  # 包定义
 ├── setup.py                        # 兼容安装
 └── .gitignore
@@ -163,8 +205,8 @@ trtc-asr-sdk-python/
 
 ### APPID 和 SDKAppID 有什么区别？
 
-- **APPID**（如 `1300403317`）：腾讯云账号级别的 ID，从 [CAM 密钥管理](https://console.cloud.tencent.com/cam/capi) 获取，用于 WebSocket URL 路径
-- **SDKAppID**（如 `1400188366`）：TRTC 应用级别的 ID，从 [TRTC 控制台](https://console.cloud.tencent.com/trtc/app) 获取，用于 Header 鉴权
+- **APPID**（如 `13xxxxxxxx`）：腾讯云账号级别的 ID，从 [CAM 密钥管理](https://console.cloud.tencent.com/cam/capi) 获取，用于 WebSocket URL 路径
+- **SDKAppID**（如 `14xxxxxxxx`）：TRTC 应用级别的 ID，从 [TRTC 控制台](https://console.cloud.tencent.com/trtc/app) 获取，用于 Header 鉴权
 
 ### UserSig 是什么？
 
@@ -172,7 +214,8 @@ UserSig 是基于 SDKAppID 和 SDK 密钥计算的签名，用于 TRTC 服务鉴
 
 ### 支持哪些音频格式？
 
-当前支持 PCM 格式（`voice_format=1`），建议使用 16kHz、16bit、单声道的 PCM 音频。
+- **实时语音识别**：支持 PCM 格式（`voice_format=1`），建议 16kHz、16bit、单声道
+- **一句话识别**：支持 wav、pcm、ogg-opus、mp3、m4a，音频时长 ≤ 60s，文件 ≤ 3MB
 
 ## License
 
