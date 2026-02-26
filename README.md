@@ -7,13 +7,13 @@
 **集成到你的项目中**（推荐）：
 
 ```bash
-pip install git+https://github.com/trtc-asr/trtc-asr-sdk-python.git
+pip install git+https://github.com/hydah/trtc-asr-sdk-python.git
 ```
 
 **clone 后运行示例**：
 
 ```bash
-git clone https://github.com/trtc-asr/trtc-asr-sdk-python.git
+git clone https://github.com/hydah/trtc-asr-sdk-python.git
 cd trtc-asr-sdk-python
 pip install -r requirements.txt
 ```
@@ -123,27 +123,19 @@ asyncio.run(main())
 
 ## 示例
 
-完整示例请参见 [`examples/`](./examples/) 目录：
-
-- [`realtime_asr.py`](./examples/realtime_asr.py) — 硬编码凭证的基础示例
-- [`realtime_asr_env.py`](./examples/realtime_asr_env.py) — 使用环境变量的推荐示例
+完整示例请参见 [`examples/realtime_asr.py`](./examples/realtime_asr.py)。
 
 运行示例：
 
 ```bash
-git clone https://github.com/trtc-asr/trtc-asr-sdk-python.git
+git clone https://github.com/hydah/trtc-asr-sdk-python.git
 cd trtc-asr-sdk-python
 pip install -r requirements.txt
 
-# 使用环境变量（推荐）
-export TRTC_APP_ID="1300403317"
-export TRTC_SDK_APP_ID="1400188366"
-export TRTC_SECRET_KEY="your-sdk-secret-key"
-
-python examples/realtime_asr_env.py -f test.pcm
+python examples/realtime_asr.py -f test.pcm
 
 # 查看所有选项
-python examples/realtime_asr_env.py -h
+python examples/realtime_asr.py -h
 ```
 
 ## 项目结构
@@ -158,11 +150,10 @@ trtc-asr-sdk-python/
 │   ├── speech_recognizer.py        # 实时语音识别器
 │   └── errors.py                   # 错误定义
 ├── examples/                       # 示例代码
-│   ├── .env.example                # 环境变量模板
-│   ├── realtime_asr.py             # 基础示例
-│   └── realtime_asr_env.py         # 环境变量示例（推荐）
+│   └── realtime_asr.py             # 实时语音识别示例
 ├── tests/                          # 测试
-│   └── test_signature.py           # 签名参数测试
+│   ├── test_signature.py           # 签名参数测试
+│   └── test_recognizer_lifecycle.py # 生命周期健壮性测试
 ├── pyproject.toml                  # 包定义
 ├── setup.py                        # 兼容安装
 └── .gitignore

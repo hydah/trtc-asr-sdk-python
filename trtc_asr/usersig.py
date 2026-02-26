@@ -23,4 +23,4 @@ def gen_user_sig(
         expire = DEFAULT_EXPIRE
 
     api = TLSSigAPIv2.TLSSigAPIv2(sdk_app_id, key)
-    return api.genUserSig(user_id, expire)
+    return api.gen_sig(user_id, expire)

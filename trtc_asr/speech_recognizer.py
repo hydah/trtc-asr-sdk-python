@@ -258,6 +258,10 @@ class SpeechRecognizer:
 
         self._state = _State.STOPPING
 
+        if self._ws is None:
+            self._state = _State.STOPPED
+            raise ASRError(ERR_NOT_STARTED, "connection not established")
+
         try:
             end_msg = json.dumps({"type": "end"})
             await asyncio.wait_for(self._ws.send(end_msg), timeout=self._write_timeout)

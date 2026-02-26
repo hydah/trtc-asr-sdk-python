@@ -108,7 +108,7 @@ async def process_audio(worker_id: int, file_path: str, engine: str) -> None:
 async def main() -> None:
     parser = argparse.ArgumentParser(description="TRTC Real-time ASR Example")
     parser.add_argument("-f", "--file", default="test.pcm", help="PCM audio file path")
-    parser.add_argument("-e", "--engine", default="16k_zh", help="Engine model type")
+    parser.add_argument("-e", "--engine", default="16k_zh_en", help="Engine model type")
     parser.add_argument("-c", "--concurrency", type=int, default=1, help="Concurrent sessions")
     parser.add_argument("-l", "--loop", action="store_true", help="Loop mode")
     args = parser.parse_args()
