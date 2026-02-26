@@ -1,6 +1,6 @@
 # TRTC-ASR Python SDK
 
-基于 TRTC 鉴权体系的语音识别（ASR）Python SDK，支持实时语音识别（WebSocket）和一句话识别（HTTP）两种模式。
+基于 TRTC 鉴权体系的语音识别（ASR）Python SDK，支持实时语音识别（WebSocket）、一句话识别（HTTP）和录音文件识别（异步 HTTP）三种模式。
 
 > 其他语言 SDK：[Go](https://github.com/hydah/trtc-asr-sdk-go) | [Node.js](https://github.com/hydah/trtc-asr-sdk-nodejs)
 
@@ -106,8 +106,43 @@ result = recognizer.recognize_data(data, "pcm", "16k_zh_en")
 print(f"识别结果: {result.result}")
 print(f"音频时长: {result.audio_duration} ms")
 
-# 或者从 URL 识别
-# result = recognizer.recognize_url("https://example.com/audio.wav", "wav", "16k_zh_en")
+    # 或者从 URL 识别
+    # result = recognizer.recognize_url("https://example.com/audio.wav", "wav", "16k_zh_en")
+```
+
+### 录音文件识别
+
+```python
+from trtc_asr import Credential
+from trtc_asr.file_recognizer import FileRecognizer
+
+# 1. 创建凭证
+credential = Credential(
+    app_id=0,                      # 腾讯云 APPID
+    sdk_app_id=0,                  # TRTC SDKAppID
+    secret_key="your-sdk-secret-key",  # SDK密钥
+)
+
+# 2. 创建录音文件识别器
+recognizer = FileRecognizer(credential)
+
+# 3. 提交识别任务（本地文件）
+with open("audio.wav", "rb") as f:
+    data = f.read()
+task_id = recognizer.create_task_from_data(data, "16k_zh_en")
+print(f"任务已提交: {task_id}")
+
+# 4. 轮询等待结果（默认 1 秒间隔，10 分钟超时）
+status = recognizer.wait_for_result(task_id)
+
+print(f"识别结果: {status.result}")
+print(f"音频时长: {status.audio_duration:.2f} s")
+
+# 或者从 URL 提交（支持更大文件，≤1GB / ≤12h）
+# task_id = recognizer.create_task_from_url("https://example.com/audio.wav", "16k_zh_en")
+
+# 或者自定义轮询间隔（秒）
+# status = recognizer.wait_for_result_with_interval(task_id, 2.0, 1800.0)
 ```
 
 ## 前提条件
@@ -156,7 +191,8 @@ print(f"音频时长: {result.audio_duration} ms")
 完整示例请参见：
 
 - **实时语音识别**：[`examples/realtime_asr.py`](./examples/realtime_asr.py) — WebSocket 流式识别
-- **一句话识别**：[`examples/sentence_asr.py`](./examples/sentence_asr.py) — HTTP 短音频识别
+- **一句话识别**：[`examples/sentence_asr.py`](./examples/sentence_asr.py) — HTTP 短音频识别（≤60s）
+- **录音文件识别**：[`examples/file_asr.py`](./examples/file_asr.py) — 异步长音频识别
 
 运行示例：
 
@@ -170,6 +206,9 @@ python examples/realtime_asr.py -f examples/test.pcm
 
 # 一句话识别
 python examples/sentence_asr.py -f examples/test.pcm
+
+# 录音文件识别
+python examples/file_asr.py -f examples/test.wav
 
 # 查看所有选项
 python examples/realtime_asr.py -h
@@ -187,15 +226,18 @@ trtc-asr-sdk-python/
 │   ├── signature.py                # URL 请求参数构建
 │   ├── speech_recognizer.py        # 实时语音识别器（WebSocket）
 │   ├── sentence_recognizer.py      # 一句话识别器（HTTP）
+│   ├── file_recognizer.py          # 录音文件识别器（异步 HTTP）
 │   └── errors.py                   # 错误定义
 ├── examples/                       # 示例代码
 │   ├── test.pcm                    # 测试音频文件
 │   ├── realtime_asr.py             # 实时语音识别示例
-│   └── sentence_asr.py             # 一句话识别示例
+│   ├── sentence_asr.py             # 一句话识别示例
+│   └── file_asr.py                 # 录音文件识别示例
 ├── tests/                          # 测试
 │   ├── test_signature.py           # 签名参数测试
 │   ├── test_recognizer_lifecycle.py # 生命周期健壮性测试
-│   └── test_sentence_recognizer.py # 一句话识别测试
+│   ├── test_sentence_recognizer.py # 一句话识别测试
+│   └── test_file_recognizer.py     # 录音文件识别测试
 ├── pyproject.toml                  # 包定义
 ├── setup.py                        # 兼容安装
 └── .gitignore
@@ -216,6 +258,7 @@ UserSig 是基于 SDKAppID 和 SDK 密钥计算的签名，用于 TRTC 服务鉴
 
 - **实时语音识别**：支持 PCM 格式（`voice_format=1`），建议 16kHz、16bit、单声道
 - **一句话识别**：支持 wav、pcm、ogg-opus、mp3、m4a，音频时长 ≤ 60s，文件 ≤ 3MB
+- **录音文件识别**：支持 wav、ogg-opus、mp3、m4a，本地文件 ≤ 5MB，URL ≤ 1GB / ≤ 12h
 
 ## License
 

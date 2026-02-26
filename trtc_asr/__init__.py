@@ -11,6 +11,11 @@ from trtc_asr.sentence_recognizer import (
     SentenceRecognitionRequest,
     SentenceRecognitionResult,
 )
+from trtc_asr.file_recognizer import (
+    FileRecognizer,
+    CreateRecTaskRequest,
+    TaskStatus,
+)
 from trtc_asr.errors import ASRError
 
 __all__ = [
@@ -21,6 +26,9 @@ __all__ = [
     "SentenceRecognizer",
     "SentenceRecognitionRequest",
     "SentenceRecognitionResult",
+    "FileRecognizer",
+    "CreateRecTaskRequest",
+    "TaskStatus",
     "ASRError",
 ]
 
